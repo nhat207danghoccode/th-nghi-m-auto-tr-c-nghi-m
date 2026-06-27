@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Trắc Nghiệm Hóa Sinh</title>
+
+<style>
+
+:root{
+    --main:#2563eb;
+    --main-dark:#1d4ed8;
+    --success:#22c55e;
+    --error:#ef4444;
+    --bg:#f1f5f9;
+    --dark:#111827;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:var(--bg);
+    padding:20px;
+    color:#222;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+.header{
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 4px 20px rgba(0,0,0,.08);
+    margin-bottom:20px;
+}
+
+.header h1{
+    font-size:32px;
+    color:var(--dark);
+    margin-bottom:10px;
+}
+
+.creator{
+    color:#666;
+    font-size:15px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.stats{
+    background:white;
+    padding:15px 20px;
+    border-radius:14px;
+    box-shadow:0 3px 10px rgba(0,0,0,.06);
+    font-weight:bold;
+    font-size:16px;
+}
+
+.buttons{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    border:none;
+    background:var(--main);
+    color:white;
+    padding:12px 20px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:bold;
+    transition:.2s;
+}
+
+.btn:hover{
+    background:var(--main-dark);
+    transform:translateY(-2px);
+}
+
+.btn.gray{
+    background:#64748b;
+}
+
+.btn.gray:hover{
+    background:#475569;
+}
+
+#input-area{
+    display:none;
+    margin-bottom:25px;
+}
+
+textarea{
+    width:100%;
+    min-height:250px;
+    border:none;
+    border-radius:18px;
+    padding:20px;
+    font-size:15px;
+    resize:vertical;
+    box-shadow:0 4px 20px rgba(0,0,0,.06);
+    outline:none;
+}
+
+.question{
+    background:white;
+    padding:22px;
+    border-radius:18px;
+    margin-bottom:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.06);
+}
+
+.question-title{
+    font-size:18px;
+    font-weight:bold;
+    color:#111827;
+    margin-bottom:18px;
+    line-height:1.5;
+}
+
+.options{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.option{
+    border:2px solid #e5e7eb;
+    border-radius:12px;
+    padding:14px;
+    cursor:pointer;
+    transition:.2s;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.option:hover{
+    background:#f8fafc;
+}
+
+.option.correct{
+    background:#dcfce7;
+    border-color:var(--success);
+    color:#166534;
+    font-weight:bold;
+}
+
+.option.wrong{
+    background:#fee2e2;
+    border-color:var(--error);
+    color:#991b1b;
+    font-weight:bold;
+}
+
+.option input{
+    transform:scale(1.2);
+}
+
+.footer{
+    text-align:center;
+    color:#666;
+    margin-top:30px;
+    font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+    <h1>TRẮC NGHIỆM HÓA SINH</h1>
+    <div class="creator">Create @Nhat2007 - Nguyễn Phi Nhật</div>
+</div>
+
+<div id="input-area">
+
+<textarea id="raw-text" placeholder="Dán đề trắc nghiệm vào đây..."></textarea>
+
+<div style="margin-top:15px;text-align:center;">
+    <button class="btn" onclick="generateQuiz()">
+        Tạo đề mới
+    </button>
+</div>
+
+</div>
+
+<div class="topbar">
+
+<div class="stats">
+    Tổng câu: <span id="totalQuestion">0</span>
+    |
+    Đúng: <span id="correctAnswer">0</span>
+</div>
+
+<div class="buttons">
+    <button class="btn" onclick="reshuffleQuiz()">
+        Xáo trộn & Làm lại
+    </button>
+
+```
+<button class="btn gray" onclick="backToInput()">
+    Đổi đề khác
+</button>
+```
+
+</div>
+
+</div>
+
+<div id="quiz-container"></div>
+
+<div class="footer">
+    Create @Nhat2007 - Nguyễn Phi Nhật
+</div>
+
+</div>
+
+<script>
+
+let defaultText = `
+61. Lipid là nhóm hợp chất
+A. Tự nhiên, đồng nhất về mặt cấu tạo
+B. Tan trong nước
+*C. Tan trong dung môi hữu cơ
+D. Không tan trong dung môi không phân cực
+
+62. Lipid có cấu tạo chủ yếu là:
+A. Acid béo
+B. Alcol
+*C. Este của acid béo và alcol
+D. Liên kết glucosid
+E. Liên kết peptid
+
+64. Trong lipid có thể hòa tan các vitamin sau:
+A. Vitamin C, Vitamin A
+B. Vitamin B1, B2
+C. Vitamin PP, B6, B12
+*D. Vitamin A, D, E, K
+E. Vitamin B9
+`;
+
+let parsedQuestions = [];
+let correctCount = 0;
+
+function shuffleArray(array){
+    for(let i=array.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [array[i],array[j]]=[array[j],array[i]];
+    }
+    return array;
+}
+
+function parseRawText(text){
+
+    const lines=text.split('\n');
+    let questions=[];
+    let currentQuestion=null;
+
+    lines.forEach(line=>{
+
+        let trimmed=line.trim();
+
+        if(!trimmed) return;
+
+        if(/^(#?\d+[\.\:\s])/.test(trimmed)){
+
+            if(currentQuestion){
+                questions.push(currentQuestion);
+            }
+
+            let cleanQ=trimmed.replace(/^(#?\d+[\.\:\s]\s*)/,'');
+            currentQuestion={
+                q:cleanQ,
+                arr:[]
+            };
+
+        }
+
+        else if(/^(\*?[A-E]\s*[\.\:\s])/.test(trimmed)){
+
+            if(currentQuestion){
+                currentQuestion.arr.push(trimmed);
+            }
+
+        }
+
+    });
+
+    if(currentQuestion){
+        questions.push(currentQuestion);
+    }
+
+    return questions;
+
+}
+
+function generateQuiz(){
+
+    const textInput=document.getElementById('raw-text').value;
+
+    if(!textInput.trim()){
+        alert("Vui lòng nhập đề");
+        return;
+    }
+
+    parsedQuestions=parseRawText(textInput);
+
+    buildQuizHTML();
+
+}
+
+function buildQuizHTML(){
+
+    const container=document.getElementById('quiz-container');
+
+    container.innerHTML="";
+
+    correctCount=0;
+
+    document.getElementById("correctAnswer").innerText=0;
+
+    const shuffledQuestions=shuffleArray([...parsedQuestions]);
+
+    document.getElementById("totalQuestion").innerText=shuffledQuestions.length;
+
+    shuffledQuestions.forEach((item,qIndex)=>{
+
+        const qBlock=document.createElement("div");
+
+        qBlock.className="question";
+
+        const qText=document.createElement("div");
+
+        qText.className="question-title";
+
+        qText.innerText=`Câu ${qIndex+1}: ${item.q}`;
+
+        qBlock.appendChild(qText);
+
+        let optionsData=item.arr.map(option=>{
+
+            let isCorrect=option.startsWith('*');
+
+            let cleanText=option.replace(/^\*?[A-E]\s*[\.\:\s]\s*/,'');
+
+            return{
+                text:cleanText,
+                isCorrect:isCorrect
+            };
+
+        });
+
+        optionsData=shuffleArray(optionsData);
+
+        const optionsList=document.createElement("div");
+
+        optionsList.className="options";
+
+        optionsData.forEach((opt)=>{
+
+            const optItem=document.createElement("label");
+
+            optItem.className="option";
+
+            if(opt.isCorrect){
+                optItem.classList.add("correct-target");
+            }
+
+            const radio=document.createElement("input");
+
+            radio.type="radio";
+
+            radio.name=`question_${qIndex}`;
+
+            const span=document.createElement("span");
+
+            span.innerText=opt.text;
+
+            optItem.appendChild(radio);
+
+            optItem.appendChild(span);
+
+            optItem.onclick=function(){
+
+                if(qBlock.classList.contains("answered")){
+                    return;
+                }
+
+                qBlock.classList.add("answered");
+
+                radio.checked=true;
+
+                const allOptions=optionsList.querySelectorAll(".option");
+
+                allOptions.forEach(li=>{
+
+                    li.style.pointerEvents="none";
+
+                    if(li.classList.contains("correct-target")){
+                        li.classList.add("correct");
+                    }
+
+                });
+
+                if(opt.isCorrect){
+
+                    correctCount++;
+
+                    document.getElementById("correctAnswer").innerText=correctCount;
+
+                }
+
+                else{
+
+                    optItem.classList.add("wrong");
+
+                }
+
+            };
+
+            optionsList.appendChild(optItem);
+
+        });
+
+        qBlock.appendChild(optionsList);
+
+        container.appendChild(qBlock);
+
+    });
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+function reshuffleQuiz(){
+
+    buildQuizHTML();
+
+}
+
+function backToInput(){
+
+    const area=document.getElementById("input-area");
+
+    if(area.style.display==="none" || area.style.display===""){
+
+        area.style.display="block";
+
+        document.getElementById("raw-text").value=defaultText;
+
+    }
+
+    else{
+
+        area.style.display="none";
+
+    }
+
+}
+
+window.onload=function(){
+
+    parsedQuestions=parseRawText(defaultText);
+
+    buildQuizHTML();
+
+};
+
+</script>
+
+</body>
+</html>
